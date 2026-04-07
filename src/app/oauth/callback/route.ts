@@ -8,6 +8,15 @@ const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID!;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET!;
 
 export async function GET(req: NextRequest) {
+  try {
+    return await handleCallback(req);
+  } catch (err) {
+    console.error("[oauth/callback] Unhandled error:", err);
+    return NextResponse.redirect(`${APP_REDIRECT}?error=server_error`);
+  }
+}
+
+async function handleCallback(req: NextRequest) {
   const { searchParams } = req.nextUrl;
   const code = searchParams.get("code");
   const state = searchParams.get("state");
