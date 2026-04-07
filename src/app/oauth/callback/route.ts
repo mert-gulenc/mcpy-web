@@ -31,9 +31,9 @@ async function handleCallback(req: NextRequest) {
   // Validate state token
   const { data: stateRow } = await getSupabaseAdmin()
     .from("oauth_states")
-    .select("user_id, expires_at")
+    .select("user_id, service, expires_at")
     .eq("state_token", state)
-    .single<{ user_id: string; expires_at: string }>();
+    .single<{ user_id: string; service: string; expires_at: string }>();
 
   if (!stateRow) {
     return NextResponse.redirect(`${APP_REDIRECT}?error=invalid_state`);
@@ -75,6 +75,7 @@ async function handleCallback(req: NextRequest) {
 
   const upsertData: Record<string, unknown> = {
     user_id: stateRow.user_id,
+    service: stateRow.service,
     access_token: tokens.access_token,
     expires_at: new Date(Date.now() + tokens.expires_in * 1000).toISOString(),
     scope: tokens.scope,
@@ -87,7 +88,7 @@ async function handleCallback(req: NextRequest) {
   const { error: upsertErr } = await getSupabaseAdmin()
     .from("google_connections")
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .upsert(upsertData as any, { onConflict: "user_id" });
+    .upsert(upsertData as any, { onConflict: "user_id,service" });
 
   if (upsertErr) {
     console.error("[oauth/callback] DB upsert failed:", upsertErr.message);
