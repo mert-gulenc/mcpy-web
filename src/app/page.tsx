@@ -7,6 +7,20 @@ export default function Home() {
       <p className="text-xl text-gray-500 dark:text-gray-400 max-w-md">
         Your AI with superpowers. Connect your apps and let AI work for you.
       </p>
+      <div className="mt-10 flex gap-5 text-sm text-gray-400 dark:text-gray-500">
+        <a
+          href="/privacy"
+          className="hover:text-black dark:hover:text-white transition-colors underline underline-offset-2"
+        >
+          Privacy Policy
+        </a>
+        <a
+          href="/terms"
+          className="hover:text-black dark:hover:text-white transition-colors underline underline-offset-2"
+        >
+          Terms of Service
+        </a>
+      </div>
     </main>
   );
 }
