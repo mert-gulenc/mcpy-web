@@ -303,10 +303,10 @@ export default function PrivacyPolicy() {
               </strong>
               <br />
               <a
-                href="mailto:mertademgulenc@gmail.com"
+                href="mailto:support@usemcpy.com"
                 className="text-gray-500 hover:text-black dark:hover:text-white transition-colors underline underline-offset-2"
               >
-                mertademgulenc@gmail.com
+                support@usemcpy.com
               </a>
             </p>
           </Section>
