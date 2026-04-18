@@ -1,26 +1,403 @@
 @import "tailwindcss";
 
+/* ── Design tokens ── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #0a0a0b;
+  --bg-2: #111113;
+  --bg-3: #17171a;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-2: rgba(255, 255, 255, 0.14);
+  --ink: #f3f3f1;
+  --ink-2: #a7a7a3;
+  --ink-3: #6b6b68;
+  --accent: #ff375f;
+  --accent-soft: rgba(255, 55, 95, 0.14);
+  --glow: rgba(255, 55, 95, 0.55);
+  /* --font-inter and --font-jetbrains are injected by next/font via layout.tsx */
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "ss01", "cv11", "cv02";
+  /* overflow-x: clip instead of hidden — hidden creates a scroll container which breaks position: sticky */
+  overflow-x: clip;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* ── Shared button styles ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid var(--line-2);
+  color: var(--ink);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  background: transparent;
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+.btn:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.24);
+}
+.btn-primary {
+  background: var(--accent);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 8px 30px -12px var(--glow);
+}
+.btn-primary:hover {
+  background: #ff4f73;
+  transform: translateY(-1px);
+}
+.btn .arrow {
+  display: inline-block;
+  transition: transform 0.2s;
+}
+.btn:hover .arrow {
+  transform: translateX(2px);
+}
+
+/* ── Eyebrow label ── */
+.eyebrow {
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 16px;
+  display: inline-block;
+}
+
+/* ── Hero pill dot pulse ── */
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+.pulse-dot {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+/* ── Scrollytelling phone layers ── */
+.phone-layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: translateY(40px) scale(0.96);
+  transition: opacity 0.7s cubic-bezier(0.2, 0.6, 0.2, 1),
+    transform 0.7s cubic-bezier(0.2, 0.6, 0.2, 1);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.phone-layer.active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* ── Rail dots ── */
+.rail-dot {
+  width: 3px;
+  height: 36px;
+  background: var(--line);
+  border-radius: 2px;
+  transition: all 0.4s ease;
+}
+.rail-dot.active {
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent);
+}
+.rail-dot.passed {
+  background: var(--line-2);
+}
+
+/* ── Models marquee ── */
+@keyframes marquee-scroll {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee-track {
+  display: flex;
+  gap: 20px;
+  animation: marquee-scroll 40s linear infinite;
+  width: max-content;
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation-play-state: paused;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ── Scrollytelling mobile phone ── */
+.feature-phone-mobile {
+  display: none;
+}
+
+/* ── Connector card hover ── */
+.connector-card {
+  background: var(--bg-2);
+  transition: background 0.3s;
+}
+.connector-card:hover {
+  background: var(--bg-3);
+}
+
+/* ── Link hover (ink-2 → ink) ── */
+.link-hover {
+  color: var(--ink-2);
+  transition: color 0.2s;
+}
+.link-hover:hover {
+  color: var(--ink);
+}
+
+/* ──────────────────────────────────────────
+   NAV
+   ────────────────────────────────────────── */
+.nav-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 32px;
+  backdrop-filter: blur(14px);
+  background: linear-gradient(180deg, rgba(10, 10, 11, 0.8), rgba(10, 10, 11, 0.4) 70%, transparent);
+}
+
+.nav-links-hide {
+  display: flex;
+}
+
+/* ──────────────────────────────────────────
+   HERO
+   ────────────────────────────────────────── */
+.hero-section {
+  position: relative;
+  padding: 160px 32px 100px;
+  max-width: 1400px;
+  margin: 0 auto;
+  text-align: center;
+  overflow: hidden;
+}
+
+.hero-glow {
+  position: absolute;
+  inset: -10% -10% auto -10%;
+  height: 90%;
+  background:
+    radial-gradient(ellipse 60% 60% at 50% 0%, rgba(255, 55, 95, 0.22), transparent 60%),
+    radial-gradient(ellipse 80% 40% at 50% 90%, rgba(255, 55, 95, 0.08), transparent 70%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.hero-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-2);
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.02);
+  margin-bottom: 28px;
+}
+
+.hero-h1 {
+  font-family: var(--font-inter), sans-serif;
+  font-weight: 700;
+  font-size: clamp(40px, 7vw, 96px);
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+  margin: 0 0 22px;
+  color: var(--ink);
+}
+
+.hero-h1-em {
+  font-style: italic;
+  font-weight: 500;
+  color: transparent;
+  background: linear-gradient(180deg, var(--ink) 0%, #ff375f 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.hero-sub {
+  max-width: 620px;
+  margin: 0 auto 38px;
+  font-size: clamp(15px, 1.3vw, 19px);
+  line-height: 1.55;
+  color: var(--ink-2);
+  font-weight: 400;
+}
+
+.hero-ctas {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 72px;
+  flex-wrap: wrap;
+}
+
+.hero-meta {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  font-size: 13px;
+  color: var(--ink-3);
+  font-family: var(--font-jetbrains), monospace;
+  flex-wrap: wrap;
+  margin-bottom: 0;
+}
+
+.hero-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hero-tick {
+  color: oklch(0.7 0.18 150);
+}
+
+/* Phone fan */
+.hero-phones {
+  position: relative;
+  margin-top: 64px;
+  height: 520px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  perspective: 1400px;
+}
+
+.hero-phone {
+  position: absolute;
+  width: 260px;
+  height: auto;
+  filter: drop-shadow(0 40px 60px rgba(0, 0, 0, 0.6));
+  transition: transform 0.6s ease;
+}
+
+.hero-phone-1 { transform: translateX(-380px) rotate(-10deg) translateY(30px); opacity: 0.55; }
+.hero-phone-2 { transform: translateX(-190px) rotate(-5deg) translateY(10px);  opacity: 0.82; }
+.hero-phone-3 { transform: translateX(0) rotate(0deg) translateY(-10px);       z-index: 3; }
+.hero-phone-4 { transform: translateX(190px) rotate(5deg) translateY(10px);    opacity: 0.82; }
+.hero-phone-5 { transform: translateX(380px) rotate(10deg) translateY(30px);   opacity: 0.55; }
+
+/* ──────────────────────────────────────────
+   RESPONSIVE — 900px
+   ────────────────────────────────────────── */
+@media (max-width: 900px) {
+  /* Nav */
+  .nav-links-hide  { display: none !important; }
+  .nav-bar         { padding: 14px 20px; }
+  .nav-cta-label   { display: none; }
+  .nav-cta-arrow   { display: none; }
+
+  /* Hero */
+  .hero-section { padding: 110px 24px 60px; }
+  .hero-phones  { height: 380px; margin-top: 48px; }
+  .hero-phone   { width: 180px; }
+  .hero-phone-1 { transform: translateX(-220px) rotate(-12deg) translateY(30px); opacity: 0.4; }
+  .hero-phone-2 { transform: translateX(-110px) rotate(-6deg) translateY(10px);  opacity: 0.7; }
+  .hero-phone-4 { transform: translateX(110px) rotate(6deg) translateY(10px);    opacity: 0.7; }
+  .hero-phone-5 { transform: translateX(220px) rotate(12deg) translateY(30px);   opacity: 0.4; }
+
+  /* Scrollytelling */
+  .scrolly-grid            { grid-template-columns: 1fr !important; }
+  .scrolly-stage-desktop   { display: none !important; }
+  .feature-panel           { min-height: auto !important; padding: 40px 24px !important; }
+  .rail-hide               { display: none !important; }
+
+  /* Connectors */
+  .card-grid-responsive { grid-template-columns: 1fr !important; }
+
+  /* Footer */
+  .footer-grid { grid-template-columns: 1fr 1fr !important; gap: 30px !important; }
+}
+
+/* ──────────────────────────────────────────
+   RESPONSIVE — 640px (small mobile)
+   ────────────────────────────────────────── */
+@media (max-width: 640px) {
+  /* Hero */
+  .hero-section { padding: 90px 16px 40px; }
+  .hero-ctas    { flex-direction: column; align-items: center; }
+  .hero-meta    { gap: 12px; font-size: 12px; }
+
+  /* Hero phones → horizontal scroll strip */
+  .hero-phones {
+    display: flex !important;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    height: auto !important;
+    margin-top: 40px;
+    padding: 0 32px 16px;
+    gap: 12px;
+    perspective: none;
+    justify-content: flex-start;
+  }
+  .hero-phones::-webkit-scrollbar { display: none; }
+
+  .hero-phone {
+    position: relative !important;
+    transform: none !important;
+    opacity: 1 !important;
+    width: 200px !important;
+    flex-shrink: 0;
+    scroll-snap-align: center;
+    z-index: auto !important;
+    filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.5));
+  }
+
+  /* Footer — single column */
+  .footer-grid { grid-template-columns: 1fr !important; }
 }
